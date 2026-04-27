@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>मराठी बातम्या तपासक</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .header { text-align: center; margin-bottom: 32px; }
+  .logo {
+    width: 70px; height: 70px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 26px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #64748b; }
+  label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+  .api-section {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .api-input {
+    width: 100%;
+    height: 40px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-family: monospace;
+    outline: none;
+    color: #1e293b;
+    background: white;
+  }
+  .api-input:focus { border-color: #667eea; }
+  .api-help { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+  .api-help a { color: #667eea; }
+  textarea {
+    width: 100%;
+    height: 150px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    color: #1e293b;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  textarea:focus { border-color: #667eea; }
+  textarea::placeholder { color: #94a3b8; }
+  .char-count { text-align: right; font-size: 12px; color: #94a3b8; margin-bottom: 16px; }
+  .check-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .check-btn:hover { opacity: 0.92; }
+  .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .spinner { display: none; text-align: center; padding: 20px; color: #64748b; font-size: 14px; }
+  .spinner.show { display: block; }
+  .result {
+    display: none;
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .result.show { display: block; }
+  .result.fake { background: #fef2f2; border: 2px solid #fca5a5; }
+  .result.real { background: #f0fdf4; border: 2px solid #86efac; }
+  .result-icon { font-size: 50px; margin-bottom: 12px; }
+  .result-label { font-size: 30px; font-weight: 900; margin-bottom: 6px; }
+  .result.fake .result-label { color: #dc2626; }
+  .result.real .result-label { color: #16a34a; }
+  .result-marathi { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .result.fake .result-marathi { color: #ef4444; }
+  .result.real .result-marathi { color: #22c55e; }
+  .bar-wrap { background: #e2e8f0; border-radius: 999px; height: 12px; overflow: hidden; margin-bottom: 8px; }
+  .bar { height: 100%; border-radius: 999px; transition: width 1s ease; }
+  .result.fake .bar { background: linear-gradient(90deg, #f87171, #dc2626); }
+  .result.real .bar { background: linear-gradient(90deg, #4ade80, #16a34a); }
+  .conf-text { font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 16px; }
+  .news-box {
+    background: white; border-radius: 10px; padding: 12px 16px;
+    font-size: 13px; color: #475569; text-align: left;
+    border: 1px solid #e2e8f0; line-height: 1.6; margin-bottom: 16px;
+  }
+  .reset-btn {
+    background: none; border: 2px solid #667eea; color: #667eea;
+    border-radius: 10px; padding: 10px 24px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .reset-btn:hover { background: #667eea; color: white; }
+  .error-box {
+    display: none;
+    background: #fff7ed; border: 2px solid #fed7aa;
+    border-radius: 12px; padding: 16px;
+    font-size: 14px; color: #c2410c; margin-bottom: 16px; line-height: 1.6;
+  }
+  .error-box.show { display: block; }
+  .examples { margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+  .examples-title { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px; }
+  .example-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: #f1f5f9; border: 1px solid #e2e8f0;
+    border-radius: 20px; padding: 6px 12px;
+    font-size: 12px; color: #475569; cursor: pointer;
+  }
+  .chip:hover { background: #667eea; color: white; border-color: #667eea; }
+  .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">📰</div>
+    <h1>मराठी बातम्या तपासक</h1>
+    <p class="subtitle">AI-powered Marathi Fake News Detector</p>
+  </div>
+
+  <div class="api-section">
+    <label>Hugging Face API Token (required)</label>
+    <input type="password" class="api-input" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxx"/>
+    <div class="api-help">
+      Get free token from <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> — Read permission is enough
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px">
+    <label>बातमी इथे लिहा किंवा पेस्ट करा:</label>
+    <textarea id="newsText" placeholder="उदा: पंतप्रधान नरेंद्र मोदी यांनी आज नवीन शेती योजना जाहीर केली..."></textarea>
+    <div class="char-count"><span id="charCount">0</span> characters</div>
+  </div>
+
+  <button class="check-btn" id="checkBtn" onclick="checkNews()">तपासा — Check News</button>
+
+  <div class="spinner" id="spinner">⏳ AI model analyzing your news...</div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="result" id="result">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-label" id="resultLabel"></div>
+    <div class="result-marathi" id="resultMarathi"></div>
+    <div class="bar-wrap"><div class="bar" id="bar" style="width:0%"></div></div>
+    <div class="conf-text" id="confText"></div>
+    <div class="news-box" id="newsBox"></div>
+    <button class="reset-btn" onclick="reset()">Try Another News</button>
+  </div>
+
+  <div class="examples">
+    <div class="examples-title">Try these examples — click to fill:</div>
+    <div class="example-chips">
+      <span class="chip" onclick="setExample(this)">पंतप्रधान मोदी यांनी नवीन शेती योजना जाहीर केली</span>
+      <span class="chip" onclick="setExample(this)">परग्रहवासी लोक महाराष्ट्रात उतरले!</span>
+      <span class="chip" onclick="setExample(this)">महाराष्ट्र सरकारने शेतकऱ्यांना कर्जमाफी दिली</span>
+      <span class="chip" onclick="setExample(this)">मुंबईत समुद्र अचानक गायब झाला</span>
+    </div>
+  </div>
+
+  <div class="footer">Model: razi890/marathi-fake-news-detector | Built with MuRIL + Hugging Face</div>
+</div>
+
+<script>
+const textarea = document.getElementById("newsText");
+const charCount = document.getElementById("charCount");
+textarea.addEventListener("input", () => { charCount.textContent = textarea.value.length; });
+
+function setExample(el) {
+  textarea.value = el.textContent;
+  charCount.textContent = el.textContent.length;
+}
+
+async function checkNews() {
+  const text = textarea.value.trim();
+  const token = document.getElementById("hfToken").value.trim();
+
+  if (!text) { showError("कृपया बातमी लिहा! Please enter news text."); return; }
+  if (!token) { showError("कृपया Hugging Face token टाका!"); return; }
+
+  hideAll();
+  document.getElementById("checkBtn").disabled = true;
+  document.getElementById("spinner").classList.add("show");
+
+  const MODEL = "razi890/marathi-fake-news-detector";
+  const URL = `https://api-inference.huggingface.co/models/${MODEL}`;
+
+  try {
+    // First warm up the model
+    const warmup = await fetch(URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "x-wait-for-model": "true"
+      },
+      body: JSON.stringify({ inputs: text, options: { wait_for_model: true } })
+    });
+
+    if (warmup.status === 401) {
+      showError("Invalid token! Please check your Hugging Face token and try again.");
+      return;
+    }
+
+    if (warmup.status === 404) {
+      showError("Model not found! Make sure razi890/marathi-fake-news-detector is public on Hugging Face.");
+      return;
+    }
+
+    if (!warmup.ok) {
+      const e = await warmup.json();
+      showError("Error: " + (e.error || "Something went wrong. Try again in 30 seconds."));
+      return;
+    }
+
+    const data = await warmup.json();
+    console.log("API Response:", data);
+
+    let results = Array.isArray(data[0]) ? data[0] : data;
+    const fakeResult = results.find(r => r.label === "LABEL_1");
+    const realResult = results.find(r => r.label === "LABEL_0");
+
+    if (!fakeResult && !realResult) {
+      showError("Unexpected response from model. Please try again.");
+      return;
+    }
+
+    const isFake = fakeResult && fakeResult.score > 0.5;
+    const confidence = isFake
+      ? Math.round(fakeResult.score * 100)
+      : Math.round((realResult ? realResult.score : 0) * 100);
+
+    showResult(isFake, confidence, text);
+
+  } catch(err) {
+    showError("Connection error: " + err.message + " — Check your internet and try again.");
+  } finally {
+    document.getElementById("spinner").classList.remove("show");
+    document.getElementById("checkBtn").disabled = false;
+  }
+}
+
+function showResult(isFake, confidence, text) {
+  const result = document.getElementById("result");
+  result.className = "result show " + (isFake ? "fake" : "real");
+  document.getElementById("resultIcon").textContent = isFake ? "🚨" : "✅";
+  document.getElementById("resultLabel").textContent = isFake ? "FAKE NEWS" : "REAL NEWS";
+  document.getElementById("resultMarathi").textContent = isFake ? "ही बातमी खोटी आहे!" : "ही बातमी खरी आहे!";
+  document.getElementById("confText").textContent = `AI Confidence: ${confidence}%`;
+  document.getElementById("newsBox").textContent = `"${text.substring(0, 120)}${text.length > 120 ? '...' : ''}"`;
+  setTimeout(() => { document.getElementById("bar").style.width = confidence + "%"; }, 100);
+}
+
+function showError(msg) {
+  const box = document.getElementById("errorBox");
+  box.textContent = msg;
+  box.classList.add("show");
+  document.getElementById("spinner").classList.remove("show");
+  document.getElementById("checkBtn").disabled = false;
+}
+
+function hideAll() {
+  document.getElementById("result").classList.remove("show");
+  document.getElementById("errorBox").classList.remove("show");
+}
+
+function reset() {
+  hideAll();
+  textarea.value = "";
+  charCount.textContent = "0";
+  document.getElementById("bar").style.width = "0%";
+}
+</script>
+</body>
+</html>
